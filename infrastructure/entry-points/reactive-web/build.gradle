@@ -1,0 +1,10 @@
+dependencies {
+    implementation project(':usecase')
+    implementation project(':model')
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation("org.apache.commons:commons-csv:1.14.0")
+    implementation("org.slf4j:slf4j-api:2.0.12")
+    runtimeOnly("ch.qos.logback:logback-classic:1.4.11")
+}
