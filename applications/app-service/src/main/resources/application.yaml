@@ -13,7 +13,7 @@ spring:
     include: null
   data:
     mongodb:
-      uri: "mongodb+srv://admin:xxx@galeras.vjcyxol.mongodb.net/banking"
+      uri: "mongodb+srv://admin:xx@galeras.vjcyxol.mongodb.net/banking"
   rabbitmq:
     host: possum.lmq.cloudamqp.com
     port: 5671

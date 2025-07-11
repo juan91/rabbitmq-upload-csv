@@ -9,6 +9,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Component;
@@ -49,8 +50,9 @@ public class Handler {
                     }
 
                     MediaType mediaType = filePart.headers().getContentType();
-                    if (mediaType == null || !mediaType.isCompatibleWith(MediaType.TEXT_PLAIN) && !mediaType.toString().equals("text/csv")) {
-                        return ServerResponse.badRequest().bodyValue("Invalid content type, expected text/csv");
+                    if (mediaType == null || (!mediaType.isCompatibleWith(MediaType.TEXT_PLAIN) && !mediaType.toString().equals("text/csv"))) {
+                        return ServerResponse.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                                .bodyValue("Invalid content type, expected text/csv");
                     }
 
                     // Leer archivo completo y parsear con commons-csv
@@ -75,7 +77,12 @@ public class Handler {
 
                     return uploadCsvMovementLinesUseCase.uploadMovement(boxId, CsvMovementLineLines, username != null ? username : "anonymous")
                             .flatMap(result -> ServerResponse.ok().bodyValue(result))
-                            .onErrorResume(e -> ServerResponse.badRequest().bodyValue(Map.of("error", e.getMessage())));
+                            .onErrorResume(e -> {
+                                if (e instanceof IllegalStateException && e.getMessage().equals("Caja no encontrada")) {
+                                    return ServerResponse.notFound().build();
+                                }
+                                return ServerResponse.badRequest().bodyValue(Map.of("error", e.getMessage()));
+                            });
                 });
     }
 
