@@ -13,15 +13,19 @@ spring:
     include: null
   data:
     mongodb:
-      uri: "mongodb+srv://admin:xx@galeras.vjcyxol.mongodb.net/banking"
+      uri: "mongodb+srv://admin:xxx@galeras.vjcyxol.mongodb.net/banking"
   rabbitmq:
     host: possum.lmq.cloudamqp.com
     port: 5671
     username: ltqlmrty
-    password: xxx
+    password: xx
     virtual-host: ltqlmrty
     ssl:
       enabled: true
+
+app:
+  fail-on-event-error: false  # o false, según el comportamiento deseado
+
 management:
   endpoints:
     web:

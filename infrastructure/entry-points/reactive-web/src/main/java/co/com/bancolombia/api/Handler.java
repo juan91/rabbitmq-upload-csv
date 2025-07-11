@@ -2,12 +2,14 @@ package co.com.bancolombia.api;
 
 import co.com.bancolombia.model.box.Box;
 import co.com.bancolombia.model.movement.CsvMovementLine;
+import co.com.bancolombia.model.movement.Movement;
 import co.com.bancolombia.usecase.box.BoxUseCase;
 import co.com.bancolombia.usecase.uploadmovents.UploadMoventsUseCase;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,6 +36,8 @@ public class Handler {
 
     private final UploadMoventsUseCase uploadCsvMovementLinesUseCase;
     private final BoxUseCase boxUseCase;
+    @Value("${app.fail-on-event-error:false}")
+    private boolean failOnEventError;
 
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -71,17 +75,17 @@ public class Handler {
                             })
                             .flatMapMany(content ->
                                     Mono.fromCallable(() -> parseCsvLines(content))
-                                            .subscribeOn(Schedulers.boundedElastic()) // 👈 Esto lo saca del hilo reactivo
+                                            .subscribeOn(Schedulers.boundedElastic())
                                             .flatMapMany(Flux::fromIterable)
                             );
 
-                    return uploadCsvMovementLinesUseCase.uploadMovement(boxId, CsvMovementLineLines, username != null ? username : "anonymous")
+                    return uploadCsvMovementLinesUseCase.uploadMovement(boxId, CsvMovementLineLines, username != null ? username : "anonymous", failOnEventError)
                             .flatMap(result -> ServerResponse.ok().bodyValue(result))
                             .onErrorResume(e -> {
                                 if (e instanceof IllegalStateException && e.getMessage().equals("Caja no encontrada")) {
                                     return ServerResponse.notFound().build();
                                 }
-                                return ServerResponse.badRequest().bodyValue(Map.of("error", e.getMessage()));
+                                return Mono.error(e);
                             });
                 });
     }
@@ -116,6 +120,13 @@ public class Handler {
     public Mono<ServerResponse> createBox(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(Box.class).flatMap(box -> boxUseCase.createBox(box.getId(), box.getName()))
                 .flatMap(currentBox -> ServerResponse.ok().body(BodyInserters.fromValue(currentBox)));
+    }
+
+    public Mono<ServerResponse> movements(ServerRequest serverRequest) {
+        var idBox = serverRequest.pathVariable("boxId");
+        return ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(uploadCsvMovementLinesUseCase.findByIdBox(idBox), Movement.class);
     }
 
 }

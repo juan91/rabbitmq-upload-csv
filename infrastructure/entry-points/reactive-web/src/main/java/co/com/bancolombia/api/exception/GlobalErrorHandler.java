@@ -1,5 +1,6 @@
 package co.com.bancolombia.api.exception;
 
+import co.com.bancolombia.model.events.exceptionDomain.EventPublishException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
 import org.springframework.core.annotation.Order;
@@ -25,6 +26,9 @@ public class GlobalErrorHandler implements ErrorWebExceptionHandler {
 
         if (ex instanceof IllegalStateException) {
             status = HttpStatus.BAD_REQUEST;
+            message = ex.getMessage();
+        } else if (ex instanceof EventPublishException) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
             message = ex.getMessage();
         }
 

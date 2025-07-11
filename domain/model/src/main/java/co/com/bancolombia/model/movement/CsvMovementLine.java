@@ -1,10 +1,14 @@
 package co.com.bancolombia.model.movement;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CsvMovementLine {
     private String movementId;
     private String boxId;

@@ -17,6 +17,7 @@ public class RouterRest {
         return RouterFunctions.route()
                 .POST("/api/boxes/{boxId}/movements/upload", handler::uploadCsvMovementLines)
                 .POST("/api", handler::createBox)
+                .GET("/api/boxes/{boxId}/movements", handler::movements)
                 .build();
     }
 }

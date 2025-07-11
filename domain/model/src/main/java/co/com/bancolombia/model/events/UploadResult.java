@@ -13,6 +13,7 @@ import java.util.List;
 @Data
 public class UploadResult {
     private int total;
+    private String boxId;
     private int success;
     private int failed;
     private List<ErrorLine> errors;

@@ -28,6 +28,7 @@ public class MongoLogsRepositoryAdapter extends AdapterOperations<UploadResult, 
 
     public UploadResultData toDocument(UploadResult dto) {
         return UploadResultData.builder()
+                .boxId(dto.getBoxId())
                 .total(dto.getTotal())
                 .success(dto.getSuccess())
                 .failed(dto.getFailed())

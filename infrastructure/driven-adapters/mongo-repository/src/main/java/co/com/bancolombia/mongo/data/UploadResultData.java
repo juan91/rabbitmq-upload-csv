@@ -19,6 +19,7 @@ public class UploadResultData {
 
     @Id
     private String id;
+    private String boxId;
     private int total;
     private int success;
     private int failed;

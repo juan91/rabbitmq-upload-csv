@@ -8,6 +8,8 @@ import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Repository
 public class MongoMovementRepositoryAdapter extends AdapterOperations<Movement, MovementData, String, MongoDBMovementRepository>
@@ -20,4 +22,14 @@ public class MongoMovementRepositoryAdapter extends AdapterOperations<Movement, 
         super(repository, mapper, d -> mapper.map(d, Movement.class));
     }
 
+    @Override
+    public Flux<Movement> findByIdBox(String id) {
+        return repository.findByBoxId(id)
+                .map(movementData -> mapper.map(movementData, Movement.class));
+    }
+
+    @Override
+    public Mono<Void> deleteByBoxIdAndMovementId(String boxId, String movementId) {
+        return repository.deleteByBoxIdAndMovementId(boxId, movementId);
+    }
 }

@@ -20,13 +20,13 @@ import static reactor.core.publisher.Mono.from;
 public class ReactiveEventsGateway implements EventsGateway {
 
     private static final Logger log = LoggerFactory.getLogger(ReactiveEventsGateway.class);
-
     public static final String SOME_EVENT_NAME = "movement.event.created";
     private final DomainEventBus domainEventBus;
 
     @Override
     public Mono<Void> emit(Object event) {
         log.info("Sending domain event: {}", event.toString());
-         return from(domainEventBus.emit(new DomainEvent<>(SOME_EVENT_NAME, UUID.randomUUID().toString(), event)));
+       //return Mono.error(new RuntimeException("Error forzado"));
+       return from(domainEventBus.emit(new DomainEvent<>(SOME_EVENT_NAME, UUID.randomUUID().toString(), event)));
     }
 }
